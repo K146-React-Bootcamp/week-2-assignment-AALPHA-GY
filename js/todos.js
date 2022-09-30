@@ -6,7 +6,10 @@ const editModal = document.querySelector("#editModal");
 let todos = [];
 let todo;
 
-const renderTodos = () => {
+let current_page = 1;
+let rows = 15;
+
+const renderTodos = (page = 1) => {
 	root.innerHTML = "";
 	// todoları listele
 	const table = document.createElement("table");
@@ -15,10 +18,10 @@ const renderTodos = () => {
 	const thead = document.createElement("thead");
 	thead.innerHTML = `
     <tr>
-      <th scope="col">id</th>
-      <th scope="col">Başlık</th>
-      <th scope="col">Kullanıcı Id</th>
-      <th scope="col">Durum</th>
+      <th scope="col">id<button id="id_pg">&circlearrowright;</button> <button id="id_pw">&circlearrowleft;</button></th>
+      <th scope="col">Başlık<button id="title_pg">&circlearrowright;</button> <button id="title_pw">&circlearrowleft;</button></th>
+      <th scope="col">Kullanıcı Id <button id="userId_pg">&circlearrowright;</button> <button id="userId_pw">&circlearrowleft;</button></th>
+      <th scope="col">Durum <button id="is_active_pg">&circlearrowright;</button> <button id="is_active_pw">&circlearrowleft;</button></th>
       <th scope="col"></th>
     </tr>
   `;
@@ -43,9 +46,23 @@ const renderTodos = () => {
     `;
 		tbody.appendChild(tr);
 	};
-	todos.slice(0, 15).forEach((item) => {
+
+	page--;
+
+	let start = rows * page;
+	console.log({ start });
+	let end = start + rows;
+	console.log({ end });
+	let paginatedItems = todos.slice(start, end);
+	paginatedItems.forEach((item) => {
 		renderItem(item);
 	});
+
+	/*todos.slice(0, 15).forEach((item) => {
+		renderItem(item);
+	});*/
+
+
 	table.appendChild(tbody);
 	root.append(table);
 
@@ -69,7 +86,83 @@ const renderTodos = () => {
 			editModal.classList.add("show");
 		});
 	});
+	document.querySelector("#id_pg").addEventListener("click", () => {
+		todos.sort((a, b) => b.id - a.id);
+		renderTodos(current_page);
+	});
+	document.querySelector("#id_pw").addEventListener("click", () => {
+		todos.sort((b, a) => b.id - a.id);
+		renderTodos(current_page);
+	});
+
+
+	document.querySelector('#title_pg').addEventListener('click',() => {
+		todos.sort((a, b) => {
+			const nameA = a.title.toUpperCase();
+			const nameB = b.title.toUpperCase();
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+			return 0;
+		});
+		renderTodos(current_page);
+	});
+
+
+
+
+	document.querySelector("#userId_pg").addEventListener("click", () => {
+		todos.sort((a, b) => b.id - a.id);
+		renderTodos(current_page);
+	});
+	document.querySelector("#userId_pw").addEventListener("click", () => {
+		todos.sort((b, a) => b.id - a.id);
+		renderTodos(current_page);
+	});
+
+
+	document.querySelector("#is_active_pg").addEventListener("click", () => {
+		todos.sort((a, b) => {
+			if(a.completed==true)
+			{
+				return -1;
+			}else{
+				return 0;
+			}
+
+		})
+		renderTodos(current_page);
+	});
+	document.querySelector("#is_active_pw").addEventListener("click", () => {
+		todos.sort((b, a) => {
+			if(b.completed==false)
+			{
+				return -1;
+			}else{
+				return 0;
+			}
+
+		})
+		renderTodos(current_page);
+	});
 };
+
+
+
+document.querySelectorAll(".page-link").forEach((btn) => {
+	btn.addEventListener("click", () => {
+		let data_id = btn.getAttribute("data-id");
+		current_page = Number(data_id);
+		renderTodos(current_page);
+	});
+});
+
+
+
+
 
 editModal.querySelector("#save").addEventListener("click", () => {
 	todo.title = editModal.querySelector("#title").value;
